@@ -25,16 +25,21 @@ def home(request):
 @login_required
 def add_or_update_student(request):
     if request.method == 'POST':
-        name = request.POST['name']
-        subject = request.POST['subject']
-        marks = int(request.POST['marks'])
-
+        name = request.POST.get('name')
+        subject = request.POST.get('subject')
+        marks = int(request.POST.get('marks', 0))
         if request.POST['studentid']:
             student = Student.objects.filter(id=request.POST['studentid']).update(name=name, subject=subject, marks=marks)
             messages.success(request, "Student updated successfully.")
         else:
-            Student.objects.create(name=name, subject=subject, marks=marks)
-            messages.success(request, "Student created successfully.")
+            try:
+                student = Student.objects.get(name=name, subject=subject)
+                student.marks += marks
+                student.save()
+                messages.success(request, "Marks added to existing student.")
+            except Student.DoesNotExist:
+                Student.objects.create(name=name, subject=subject, marks=marks)
+                messages.success(request, "New student created successfully.")
     return redirect('home')
 
 @login_required
