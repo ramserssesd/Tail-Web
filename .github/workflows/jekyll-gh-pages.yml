@@ -1,25 +1,38 @@
-name: 🚀 Deploy via SFTP to Hosting Server
+name: Deploy Static Site to GitHub Pages
 
 on:
   push:
     branches: ["main"]
   workflow_dispatch:
 
-jobs:
-  deploy:
-    name: 🎉 SFTP Deploy
-    runs-on: ubuntu-latest
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
     steps:
-      - name: 🛎️ Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 📤 Upload to Server via SFTP
-        uses: appleboy/scp-action@v0.1.4
+      - name: Upload static site content
+        uses: actions/upload-pages-artifact@v3
         with:
-          host: ${{ secrets.SFTP_HOST }}
-          username: ${{ secrets.SFTP_USERNAME }}
-          password: ${{ secrets.SFTP_PASSWORD }}  # or use `key` for SSH
-          port: 22
-          source: "./portal/templates/*"          # 🔁 your local static files path
-          target: "/home/youruser/public_html/robustteacher"  # 🔁 destination path on server
+          path: ./portal/templates  # 👈 your actual folder with HTML files
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
