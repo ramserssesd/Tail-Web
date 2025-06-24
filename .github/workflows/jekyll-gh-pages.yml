@@ -20,4 +20,6 @@ jobs:
           host: ${{ secrets.SFTP_HOST }}
           username: ${{ secrets.SFTP_USERNAME }}
           password: ${{ secrets.SFTP_PASSWORD }}  # or use `key` for SSH
+          port: 22
           source: "./portal/templates/*"          # 🔁 your local static files path
+          target: "/home/youruser/public_html/robustteacher"  # 🔁 destination path on server
