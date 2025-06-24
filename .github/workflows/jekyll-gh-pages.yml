@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
     inputs:
       sitePath:
-        description: 'Path to the static site directory (e.g. ./portal/templates)'
-        required: true
+        description: 'Path to static site directory (e.g. ./portal/templates)'
+        required: false
         default: './portal/templates'
 
 permissions:
@@ -22,14 +22,21 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DEFAULT_PATH: './portal/templates'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set path input or fallback
+        id: setpath
+        run: |
+          echo "PATH_TO_USE=${{ github.event.inputs.sitePath || env.DEFAULT_PATH }}" >> $GITHUB_ENV
+
       - name: Upload static site content
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ github.event.inputs.sitePath }}
+          path: ${{ env.PATH_TO_USE }}
 
   deploy:
     needs: build
