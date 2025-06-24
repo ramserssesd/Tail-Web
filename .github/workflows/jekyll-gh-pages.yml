@@ -1,19 +1,17 @@
-name: 🚀 Deploy to FTP Server
-
+name: Deploy to FTP Server
 on:
   push:
     branches: ["main"]
   workflow_dispatch:
-
 jobs:
   web-deploy:
-    name: 🎉 FTP Deploy
+    name: FTP Deploy
     runs-on: ubuntu-latest
     steps:
-      - name: 🚚 Get latest code
+      - name: Get latest code
         uses: actions/checkout@v2
 
-      - name: 📂 Sync files via FTP
+      - name: Sync files via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ftp.samkirkland.com
