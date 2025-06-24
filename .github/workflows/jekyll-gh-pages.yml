@@ -1,50 +1,19 @@
-name: Deploy Static Site to GitHub Pages
-
 on:
   push:
     branches: ["main"]
-  workflow_dispatch:
-    inputs:
-      sitePath:
-        description: 'Path to static site directory (e.g. ./portal/templates)'
-        required: false
-        default: './portal/templates'
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
+name: 🚀 Deploy website on push
 jobs:
-  build:
+  web-deploy:
+    name: 🎉 Deploy
     runs-on: ubuntu-latest
-    env:
-      DEFAULT_PATH: './portal/templates'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set path input or fallback
-        id: setpath
-        run: |
-          echo "PATH_TO_USE=${{ github.event.inputs.sitePath || env.DEFAULT_PATH }}" >> $GITHUB_ENV
-
-      - name: Upload static site content
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ${{ env.PATH_TO_USE }}
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+    
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ftp.samkirkland.com
+        username: myFtpUserName
+        password: ${{ secrets.ftp_password }}
+        server-dir: /robustteacher/
